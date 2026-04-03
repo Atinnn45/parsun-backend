@@ -660,24 +660,15 @@ def ai_command():
 @app.route("/upload_product_image", methods=["POST"])
 def upload_product_image():
     try:
-        if 'image' not in request.files:
-            return jsonify({"reply": "Tidak ada file gambar"}), 400
+        name = request.form.get("name")
+        file = request.files.get("image")
 
-        file = request.files['image']
-        product_name = request.form.get("name", "").lower().strip()
+        if not name or not file:
+            return jsonify({"reply": "Nama atau gambar tidak ditemukan"}), 400
 
-        if not product_name:
-            return jsonify({"reply": "Nama produk tidak boleh kosong"}), 400
+        filename = file.filename
+        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-        if file.filename == '':
-            return jsonify({"reply": "File kosong"}), 400
-
-        os.makedirs(app.config['CATALOG_IMAGE_FOLDER'], exist_ok=True)
-
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = f"{timestamp}_{file.filename}"
-
-        save_path = os.path.join(app.config['CATALOG_IMAGE_FOLDER'], filename)
         file.save(save_path)
 
         conn = sqlite3.connect(DATABASE)
@@ -687,19 +678,12 @@ def upload_product_image():
             UPDATE products
             SET image = ?
             WHERE LOWER(name) LIKE ?
-        """, (filename, f"%{product_name}%"))
+        """, (filename, f"%{name.lower()}%"))
 
-        affected = cursor.rowcount
         conn.commit()
         conn.close()
 
-        if affected == 0:
-            return jsonify({"reply": f"Produk '{product_name}' tidak ditemukan"}), 404
-
-        return jsonify({
-            "reply": f"Gambar berhasil diupload untuk produk '{product_name}'",
-            "filename": filename
-        })
+        return jsonify({"reply": f"Gambar untuk '{name}' berhasil diupload"})
 
     except Exception as e:
         return jsonify({"reply": f"Error: {str(e)}"}), 500
