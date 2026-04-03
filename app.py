@@ -643,27 +643,37 @@ def ai_command():
 @app.route("/check_db")
 def check_db():
     try:
-        conn = get_connection()
+        conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        
+
+        # ambil daftar tabel
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = [row[0] for row in cursor.fetchall()]
-        
-        cursor.execute("SELECT COUNT(*) FROM products")
-        product_count = cursor.fetchone()[0]
-        
-        cursor.execute("PRAGMA table_info(products)")
-        products_schema = [row[1] for row in cursor.fetchall()]
-        
+
+        product_count = 0
+        products_schema = []
+
+        if "products" in tables:
+            cursor.execute("SELECT COUNT(*) FROM products")
+            product_count = cursor.fetchone()[0]
+
+            cursor.execute("PRAGMA table_info(products)")
+            products_schema = [row[1] for row in cursor.fetchall()]
+
         conn.close()
-        
+
         return jsonify({
+            "status": "success",
             "tables": tables,
             "product_count": product_count,
-            "products_schema": products_schema[:10]  # first 10 columns
+            "products_schema": products_schema
         })
+
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({
+            "status": "error",
+            "error": str(e)
+        }), 500
 
 
 # ===================== ADMIN LOGIN ==============================
