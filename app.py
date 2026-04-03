@@ -100,9 +100,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-@app.route("/ai_command", methods=["POST"])
-def ai_command():
-    ...
 
 # ===================== HOME ==============================
 @app.route("/")
