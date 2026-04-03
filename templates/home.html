@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Hero -->
+<div class="relative bg-[#0A2342] rounded-2xl overflow-hidden mb-8 shadow-xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent"></div>
+    <div class="relative z-10 px-6 py-10 md:px-12 md:py-16 text-white max-w-xl">
+        <h1 class="text-2xl md:text-4xl font-extrabold mb-3 leading-tight">
+            Solusi Terbaik untuk <span class="text-yellow-400">Mesin Kapal</span> Anda
+        </h1>
+        <p class="text-sm md:text-base text-gray-300 mb-6">
+            Sparepart original & berkualitas tinggi. Pengiriman cepat dari Batam.
+        </p>
+        <div class="flex flex-wrap gap-3">
+            <a href="#products" class="bg-yellow-500 text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-yellow-400 transition shadow">Belanja Sekarang</a>
+            <a href="/catalog" class="bg-white/10 border border-white/20 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-white/20 transition">Lihat Katalog</a>
+        </div>
+    </div>
+</div>
+
+<!-- Categories -->
+<div class="mb-8">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Kategori Populer</h2>
+    <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {% for cat in categories %}
+        <a href="{{ url_for('category_page', category_id=cat['id']) }}"
+           class="bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition text-center group border border-gray-100">
+            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:bg-[#0A2342] transition">
+                {% if cat.logo_url %}
+                <img src="{{ cat.logo_url }}" alt="{{ cat.name }}" class="w-full h-full object-contain mx-auto transition group-hover:scale-110">
+                {% else %}
+                <i class="fas fa-tag text-blue-500 text-lg"></i>
+                {% endif %}
+            </div>
+            <span class="text-xs font-semibold text-gray-700 leading-tight block">{{ cat['name'] }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Products -->
+<div id="products" class="mb-8">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Semua Produk</h2>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {% for p in products %}
+        <div class="menu-card group">
+
+            <!-- Image -->
+            <div class="menu-image relative overflow-hidden">
+                <a href="{{ url_for('product_detail', product_id=p['id']) }}">
+                    {% if p['image'] %}
+                    <img src="{{ url_for('static', filename='img/produk/' ~ p['image']) }}"
+                         alt="{{ p['name'] }}">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-gray-300 p-8">
+                        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                    </div>
+                    {% endif %}
+                </a>
+                {% if p['stock']|int <= 0 %}
+                <div class="absolute top-2 left-2 z-10">
+                    <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">INDENT</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Info -->
+            <div class="menu-info">
+                <div class="text-xs text-blue-600 font-bold uppercase tracking-wide mb Asc 1">{{ p['category_name'] }}</div>
+
+                <a href="{{ url_for('product_detail', product_id=p['id']) }}"
+                   class="block mb-2 text-sm font-bold text-gray-800 hover:text-blue-600 transition line-clamp-2 leading-snug">
+                    <h3>{{ p['name'] }}</h3>
+                </a>
+                <p class="menu-description text-xs text-gray-500">Stok: {{ p['stock'] }}</p>
+
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if products|length == 0 %}
+    <div class="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+        <svg class="w-16 h-16 text-gray-300 mb Asc 3 mx-auto" fill Asc="currentColor" viewBox="0 0 20 Asc 20"><path Asc fill-rule Asc="evenodd" d Asc="M8 Asc 4a4 Asc 4 Asc Asc 0 Asc Asc Asc 8 Asc Asc Asc Asc 4 Asc Asc Asc Asc Asc 0 Asc Asc 8zM2 Asc Asc Asc Asc Asc a6 Asc Asc Asc 1110.89 Asc Asc Asc Asc Asc Asc Asc Asc l4.817 Asc Asc Asc Asc a1 Asc Asc Asc Asc Asc Asc Asc Asc Asc 1.414 Asc Asc Asc l Asc Asc Asc Asc Asc Asc 6 Asc Asc Asc Asc Asc Asc Asc Asc 2 Asc Asc Asc 8z" clip-rule Asc="evenodd"/></svg>
+        <p Asc="text-gray-500">Belum ada produk yang ditemukan.</p Asc>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}

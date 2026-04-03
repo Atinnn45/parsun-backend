@@ -1,0 +1,86 @@
+{% extends "admin_base.html" %}
+{% block header_title %}Kelola Katalog Gambar{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  body { font-family: 'Inter', sans-serif; }
+  .catalog-card { transition: transform 0.2s, box-shadow 0.2s; }
+  .catalog-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+  .btn-gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  .btn-gradient:hover { background: linear-gradient(135deg, #5a6fd8 0%, #6b4190 100%); }
+  .brand-badge { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+</style>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Kelola Katalog Gambar</h1>
+            <p class="text-gray-600">Kelola semua katalog gambar produk Anda dengan mudah</p>
+        </div>
+
+        <!-- Add Button -->
+        <div class="catalog-card bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Daftar Katalog</h3>
+                    <p class="text-gray-600 mt-1">Tambah, edit, atau hapus katalog gambar</p>
+                </div>
+                <a href="{{ url_for('admin_upload_catalog') }}" class="btn-gradient text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition duration-300 flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Tambah Katalog Baru
+                </a>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="catalog-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Brand</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">PK</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">File</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        {% for c in catalogs %}
+                        <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition duration-200">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ c.id }}</td>
+                            <td class="px-6 py-4">
+                                <span class="brand-badge inline-flex px-3 py-1 text-white text-xs font-bold rounded-full shadow-md">
+                                    {{ c.brand }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-lg text-gray-900">{{ c.pk }}</td>
+                            <td class="px-6 py-4">
+                                {% if c.pdf_file %}
+                                <a href="{{ url_for('catalog_brand', brand=c.brand) }}" class="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md">
+                                        {{ c.brand[0] }}
+                                    </div>
+                                    <span>Lihat di Catalog</span>
+                                </a>
+                                {% else %}
+                                <span class="text-gray-400">Tidak ada gambar</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{{ url_for('admin_edit_catalog', id=c.id) }}" class="text-indigo-600 hover:text-indigo-900 mr-4 transition duration-200">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ url_for('admin_delete_catalog', id=c.id) }}" class="text-red-600 hover:text-red-900 transition duration-200" onclick="return confirm('Yakin hapus katalog ini?')">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

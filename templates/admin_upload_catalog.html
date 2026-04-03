@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  .pulse-card { animation: fadeIn 0.35s ease-out; }
+  .form-control { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.75rem; }
+  .btn-primary-custom { background: linear-gradient(135deg,#4f46e5,#6366f1); color: white; border:none; padding: 0.7rem 1.2rem; border-radius: 0.75rem; }
+  .btn-primary-custom:hover { opacity: 0.95; }
+  @keyframes fadeIn { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+</style>
+<div class="max-w-3xl mx-auto mt-8 pulse-card">
+  <div class="bg-white border border-gray-100 shadow-lg rounded-2xl p-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-3">Upload Katalog Gambar</h2>
+    <p class="text-gray-500 mb-5">Tambah katalog baru dengan gambar produk (JPEG, PNG, WEBP)</p>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="mb-4">
+        <label class="text-sm font-semibold text-gray-600">Brand</label>
+        <input type="text" name="brand" class="form-control mt-1" placeholder="Contoh: Yamaha" required>
+      </div>
+
+      <div class="mb-4">
+        <label class="text-sm font-semibold text-gray-600">PK</label>
+        <input type="text" name="pk" class="form-control mt-1" placeholder="Contoh: 15PK" required>
+      </div>
+
+      <div class="mb-4">
+        <label class="text-sm font-semibold text-gray-600">Pilih Gambar</label>
+        <input type="file" name="image_file" class="form-control mt-1" accept="image/*" required>
+        <small class="text-gray-500">Maksimal 5MB. Format PNG/JPG/JPEG/WEBP.</small>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit" class="btn-primary-custom font-semibold">Simpan Katalog</button>
+        <a href="{{ url_for('admin_catalog_list') }}" class="text-sm text-gray-600 underline">Batal</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

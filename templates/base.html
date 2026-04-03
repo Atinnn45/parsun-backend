@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, shrink-to-fit=no">
+    <title>{% block title %}Parsun Batam - Sparepart Kapal Premium{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .navy-bg { background-color: #0A2342; }
+        .gold-text { color: #F5C518; }
+
+        /* ── Fly dot ── */
+        .fly-dot {
+            position: fixed;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: #0A2342;
+            color: #F5C518;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 99999;
+            box-shadow: 0 4px 14px rgba(10,35,66,.5);
+        }
+
+        /* ── Badge bounce ── */
+        @keyframes badgePop {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.8); }
+            70%  { transform: scale(0.85); }
+            100% { transform: scale(1); }
+        }
+        .badge-pop { animation: badgePop 0.45s cubic-bezier(.4,0,.2,1) forwards; }
+
+        /* ── Cart icon shake ── */
+        @keyframes cartShake {
+            0%,100% { transform: rotate(0); }
+            20%     { transform: rotate(-15deg); }
+            40%     { transform: rotate(15deg); }
+            60%     { transform: rotate(-10deg); }
+            80%     { transform: rotate(8deg); }
+        }
+        .cart-shake { animation: cartShake 0.5s ease forwards; }
+
+        /* ── Toast ── */
+        #toast {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #0A2342; color: white;
+            padding: 11px 22px; border-radius: 50px;
+            font-size: 13px; font-weight: 600;
+            z-index: 9998; opacity: 0;
+            transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .3s;
+            box-shadow: 0 6px 24px rgba(10,35,66,.45);
+            white-space: nowrap; pointer-events: none;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* ── Menu card (task requirement) ── */
+        .menu-card {
+            display: flex; flex-direction: column; height: 100%;
+            background: white; border-radius: 1rem; overflow: hidden;
+            box-shadow: 0 4px 12px rgba(10,35,66,.08);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(10,35,66,.12); }
+        .menu-image { height: 200px; background: #f8fafc; }
+        .menu-image img { width: 100%; height: 100%; object-fit: cover; }
+        .menu-info { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
+        .menu-description { color: #64748b; font-size: .875rem; margin: .5rem 0; }
+        .menu-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+        .menu-price { font-weight: 700; font-size: 1rem; color: #64748b; }
+        .btn-add {
+            background: #0A2342; color: white; border: none;
+            padding: .5rem 1rem; border-radius: .5rem; font-weight: 600;
+            cursor: pointer; transition: background .2s;
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .btn-add:hover { background: #1e3a5f; }
+
+        /* ── Product card (existing) ── */
+        .product-card { transition: transform .25s ease, box-shadow .25s ease; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(10,35,66,.12); }
+
+        /* ── Sidebar ── */
+        #sidebar { transition: transform .3s cubic-bezier(.4,0,.2,1); }
+
+        /* ── Mobile search ── */
+        #mobile-search { display: none; }
+        #mobile-search.open { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<!-- Toast -->
+<div id="toast">
+    <svg class="w-5 h-5 mr-2 inline" style="color:#4ade80" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+    <span id="toast-text">Ditambahkan ke keranjang!</span>
+</div>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav class="navy-bg text-white sticky top-0 z-50 shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+
+        <!-- Logo -->
+        <div class="flex items-center gap-3 flex-shrink-0">
+            <button onclick="toggleSidebar()" class="lg:hidden text-xl p-1 focus:outline-none">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+            </button>
+            <a href="/" class="flex items-center gap-2">
+                <span class="text-xl font-extrabold tracking-widest gold-text">PARSUN</span>
+                <span class="hidden sm:block text-xs font-light border-l border-gray-500 pl-2 opacity-70">BATAM</span>
+            </a>
+        </div>
+
+        <!-- Desktop nav -->
+        <div class="hidden lg:flex items-center gap-7 text-sm font-semibold">
+            <a href="/" class="hover:text-yellow-400 transition">Home</a>
+            <a href="/catalog" class="hover:text-yellow-400 transition">Catalog</a>
+            <a href="https://wa.me/62895610457056" target="_blank" class="hover:text-yellow-400 transition">Contact</a>
+            {% if session.get('admin') %}
+            <a href="{{ url_for('admin_dashboard') }}" class="bg-yellow-500 text-gray-900 px-4 py-1 rounded-full font-bold hover:bg-yellow-400 transition text-xs">Admin</a>
+            {% endif %}
+        </div>
+
+        <!-- Search + Cart -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <form action="/" method="GET" class="relative hidden md:block">
+                <input type="text" name="q" placeholder="Cari sparepart..."
+                    class="bg-white/10 text-white placeholder-gray-400 text-sm px-4 py-2 rounded-full w-44 lg:w-52 focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-white/20">
+                <button type="submit" class="absolute right-3 top-2.5 text-gray-400 hover:text-white">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+                </button>
+            </form>
+            <button onclick="toggleMobileSearch()" class="md:hidden p-2 hover:text-yellow-400">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+            </button>
+
+            <!-- Cart icon -->
+            <a href="/cart" id="cart-icon-link" class="relative p-2 hover:text-yellow-400 transition">
+                <svg id="cart-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2L3 6v11a1 1 0 001 1h12a1 1 0 001-1V6l-7-4zM5 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm10 0a1 1 0 112 0v6a1 1 0 11-2 0V8z"/></svg>
+                <span id="cart-count"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold leading-none">0</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Mobile search -->
+    <div id="mobile-search" class="px-4 pb-3 md:hidden">
+        <form action="/" method="GET">
+            <input type="text" name="q" placeholder="Cari sparepart..."
+                class="w-full bg-white/10 text-white placeholder-gray-400 text-sm px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 border border-white/20">
+        </form>
+    </div>
+</nav>
+
+<!-- Mobile Sidebar -->
+<div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-2xl z-[60] transform -translate-x-full lg:hidden">
+    <div class="p-5 h-full flex flex-col">
+        <div class="flex items-center justify-between mb-6">
+            <span class="text-lg font-extrabold" style="color:#0A2342">PARSUN BATAM</span>
+            <button onclick="toggleSidebar()" class="text-gray-400 text-3xl leading-none">&times;</button>
+        </div>
+        <nav class="space-y-1 flex-1">
+            <a href="/" class="flex items-center gap-3 py-3 px-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition">
+                <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 8.414V17a1 1 0 001 1h2a1 1 0 001-1v-5a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 001 1h2a1 1 0 001-1V8.414l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>Home
+            </a>
+            <a href="/catalog" class="flex items-center gap-3 py-3 px-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition">
+                <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12H2a2 2 0 01-2-2V4a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2zM10 12v4a2 2 0 002 2h6a2 2 0 002-2v-8a2 2 0 00-2-2h-6a2 2 0 00-2 2z"/></svg>Catalog
+            </a>
+            <a href="/cart" class="flex items-center gap-3 py-3 px-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-semibold rounded-xl transition">
+                <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2L3 6v11a1 1 0 001 1h12a1 1 0 001-1V6l-7-4zM5 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm10 0a1 1 0 112 0v6a1 1 0 11-2 0V8z"/></svg>Keranjang
+            </a>
+            <a href="https://wa.me/62895610457056" target="_blank" class="flex items-center gap-3 py-3 px-3 text-gray-700 hover:bg-green-50 hover:text-green-700 font-semibold rounded-xl transition">
+                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="#25D366"/><path d="M12.5 8.5c0 .8-.3 1.5-.8 2.1l.9 1.6-1.6.9-.9-.9c-.6.5-1.3.8-2.1.8-1.6 0-2.9-1.3-2.9-2.9s1.3-2.9 2.9-2.9c.8 0 1.5.3 2.1.8l.9-.9.9 1.6-.9.9c.5-.6.8-1.3.8-2.1 0-.8.3-1.5.8-2.1-.5-.5-1.3-.8-2.1-.8-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9c.8 0 1.5-.3 2.1-.8z" fill="white"/></svg>Hubungi Kami
+            </a>
+            {% if session.get('admin') %}
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3 py-3 px-3 text-blue-700 bg-blue-50 font-bold rounded-xl">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38 1.56-2.6 1.03-2.54-.99a1.464 1.464 0 013.26.01l-.77-.99c-.38 1.56-2.6 1.03-2.54-.99a1.464 1.464 0 013.26.01zm-3.8 11.74A3.78 3.78 0 0111.92 15 3.92 3.92 0 0115 11.96a3.79 3.79 0 01-1.88-.66l-.77.99a4.8 4.8 0 00.66 1.88 3.92 3.92 0 01-3.3 1.84zM7 5a1 1 0 011-1h6a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>Admin
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+</div>
+<div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-[55] hidden lg:hidden"></div>
+
+<!-- Main -->
+<main class="max-w-6xl mx-auto px-4 py-6 min-h-screen">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="navy-bg text-white py-10 mt-12">
+    <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+            <h3 class="text-base font-bold mb-3 gold-text">PARSUN BATAM</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Penyedia sparepart kapal berkualitas tinggi dan terpercaya di Batam.</p>
+        </div>
+        <div>
+            <h3 class="text-xs font-bold mb-3 uppercase tracking-wider text-gray-400">Quick Links</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+                <li><a href="/" class="hover:text-white transition">Home</a></li>
+                <li><a href="/catalog" class="hover:text-white transition">Catalog</a></li>
+                <li><a href="https://wa.me/62895610457056" class="hover:text-white transition">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-xs font-bold mb-3 uppercase tracking-wider text-gray-400">Contact</h3>
+            <ul class="space-y-2 text-sm text-gray-400">
+                <li class="flex items-start gap-2"><svg class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg><span>Batam, Kepulauan Riau</span></li>
+                <li class="flex items-start gap-2"><svg class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.14 1.083l-1.042.566A1.8 1.8 0 004 9v2a1 1 0 001 1h10a1 1 0 001-1V9a1.8 1.8 0 00-1.156-.832l-1.042-.566a1 1 0 01-.14-1.083l.74-4.435A1 1 0 0116.847 2H18a1 1 0 011 1v1a1 1 0 01-1 1H2a1 1 0 01-1-1V3z"/></svg><span>+62 895-6104-57056</span></li>
+                <li class="flex items-start gap-2"><svg class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.977-3.998A1 1 0 0016 5H4a1 1 0 00-1.003.884zM17 10a1 1 0 00-2 0v3a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-2 0v3a3 3 0 003 3h8a3 3 0 003-3v-3z"/></svg><span>info@parsunbatam.com</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="max-w-6xl mx-auto px-4 mt-8 pt-6 border-t border-gray-800 text-center text-gray-600 text-xs">
+        &copy; 2026 Parsun Batam. All rights reserved.
+    </div>
+</footer>
+
+<script>
+/* ── Sidebar & search ── */
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    document.getElementById('overlay').classList.toggle('hidden');
+}
+function toggleMobileSearch() {
+    document.getElementById('mobile-search').classList.toggle('open');
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = msg || 'Ditambahkan ke keranjang!';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ── Cart count ── */
+function updateCartCount() {
+    const cart  = JSON.parse(localStorage.getItem('cart') || '[]');
+    const total = cart.reduce((s, i) => s + (i.quantity || 1), 0);
+    const badge = document.getElementById('cart-count');
+    badge.textContent = total;
+    /* pop badge */
+    badge.classList.remove('badge-pop');
+    void badge.offsetWidth;
+    badge.classList.add('badge-pop');
+    setTimeout(() => badge.classList.remove('badge-pop'), 450);
+}
+
+/* ── Cart icon shake ── */
+function shakeCart() {
+    const icon = document.getElementById('cart-icon');
+    icon.classList.remove('cart-shake');
+    void icon.offsetWidth;
+    icon.classList.add('cart-shake');
+    setTimeout(() => icon.classList.remove('cart-shake'), 500);
+}
+
+/* ── Fly-to-cart ── */
+function flyToCart(btn) {
+    return new Promise(resolve => {
+        const cartEl = document.getElementById('cart-icon-link');
+        const bRect  = btn.getBoundingClientRect();
+        const cRect  = cartEl.getBoundingClientRect();
+
+        /* start position: center of button */
+        const startX = bRect.left + bRect.width  / 2 - 17;
+        const startY = bRect.top  + bRect.height / 2 - 17;
+        /* end position: center of cart icon */
+        const endX   = cRect.left + cRect.width  / 2 - 17;
+        const endY   = cRect.top  + cRect.height / 2 - 17;
+
+        const dot = document.createElement('div');
+        dot.className = 'fly-dot';
+                dot.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2L3 6v11a1 1 0 001 1h12a1 1 0 001-1V6l-7-4zM5 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm10 0a1 1 0 112 0v6a1 1 0 11-2 0V8z"/></svg>';
+        dot.style.left = startX + 'px';
+        dot.style.top  = startY + 'px';
+        document.body.appendChild(dot);
+
+        /* arc via two-step: first frame sets start, rAF sets end */
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                dot.style.transition = [
+                    'left .6s cubic-bezier(.25,.46,.45,.94)',
+                    'top .6s cubic-bezier(.25,.46,.45,.94)',
+                    'opacity .5s .1s',
+                    'transform .6s'
+                ].join(',');
+                dot.style.left      = endX + 'px';
+                dot.style.top       = endY + 'px';
+                dot.style.opacity   = '0';
+                dot.style.transform = 'scale(0.25) rotate(360deg)';
+            });
+        });
+
+        setTimeout(() => { dot.remove(); resolve(); }, 650);
+    });
+}
+
+/* ── Setup btn-add buttons (task requirement) ── */
+function setupAddButtons() {
+    document.querySelectorAll('.btn-add').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const product = JSON.parse(button.dataset.product || '{}');
+            addToCart(product, 1, button);
+        });
+    });
+}
+
+
+
+/* ── Global addToCart (enhanced) ── */
+function addToCart(product, qty, btnEl) {
+    qty = qty || 1;
+
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    // Cari berdasarkan product_id (ID unik dari database)
+    const existing = cart.find(i => String(i.product_id) === String(product.product_id));
+
+    if (existing) {
+        existing.quantity += qty;  // produk sama → tambah jumlah saja
+    } else {
+        cart.push({
+            product_id:    product.product_id,
+            name:          product.name,
+            product_code:  product.product_code  || '',
+            category_name: product.category_name || '',
+            image:         product.image         || '',
+            quantity:      qty
+        });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+
+    // Animasi tombol (opsional)
+    if (btnEl) {
+        const originalHTML = btnEl.innerHTML;
+        btnEl.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg><span>Ditambahkan!</span>';
+        btnEl.classList.add('bg-green-600');
+        btnEl.classList.remove('bg-[#0A2342]');
+        setTimeout(() => {
+            btnEl.innerHTML = originalHTML;
+            btnEl.classList.remove('bg-green-600');
+            btnEl.classList.add('bg-[#0A2342]');
+        }, 1500);
+    }
+}
+
+// Init
+updateCartCount();
+setupAddButtons();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+{% extends "admin_base.html" %}
+{% block header_title %}Daftar Produk{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+    <!-- Toolbar -->
+    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-sm">
+            <input type="text" id="searchInput" placeholder="Cari produk..."
+                class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+        </div>
+        <a href="{{ url_for('admin_add') }}"
+           class="bg-blue-600 text-white px-5 py-2 rounded-xl font-bold hover:bg-blue-700 transition flex items-center gap-2 text-sm">
+            <i class="fas fa-plus"></i> Tambah Produk
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm" id="productTable">
+            <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+                <tr>
+                    <th class="px-5 py-3">Produk</th>
+                    <th class="px-5 py-3">Kode SKU</th>
+                    <th class="px-5 py-3">Kategori</th>
+                    <th class="px-5 py-3">Harga Tampil</th>
+                    <th class="px-5 py-3 text-amber-600">🔒 Harga Asli</th>
+                    <th class="px-5 py-3">Stok</th>
+                    <th class="px-5 py-3 text-slate-500">📝 Catatan</th>
+                    <th class="px-5 py-3 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                {% for p in products %}
+                <tr class="hover:bg-gray-50 transition group">
+
+                    <!-- Produk -->
+                    <td class="px-5 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                                {% if p['image'] %}
+                                <img src="{{ url_for('static', filename='img/produk/' ~ p['image']) }}"
+                                     class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">N/A</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-800 leading-snug">{{ p['name'] }}</div>
+                                <div class="text-xs text-gray-400">{{ p['product_type'] or '-' }}</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Kode -->
+                    <td class="px-5 py-3 font-mono text-xs text-gray-500">{{ p['product_code'] or '-' }}</td>
+
+                    <!-- Kategori -->
+                    <td class="px-5 py-3">
+                        <span class="px-2.5 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">{{ p['category_name'] }}</span>
+                    </td>
+
+                    <!-- Harga tampil -->
+                    <td class="px-5 py-3 font-bold text-gray-700">
+                        Rp {{ "{:,.0f}".format(p['price'] or 0).replace(',', '.') }}
+                    </td>
+
+                    <!-- Harga asli (admin only) -->
+                    <td class="px-5 py-3">
+                        {% if p['real_price'] and p['real_price']|int > 0 %}
+                        <span class="font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg text-xs">
+                            Rp {{ "{:,.0f}".format(p['real_price']|int).replace(',', '.') }}
+                        </span>
+                        {% else %}
+                        <span class="text-gray-300 text-xs">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Stok -->
+                    <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full {{ 'bg-green-500' if p['stock']|int > 0 else 'bg-red-500' }}"></span>
+                            <span class="font-semibold {{ 'text-green-600' if p['stock']|int > 0 else 'text-red-600' }}">{{ p['stock'] }}</span>
+                        </div>
+                    </td>
+
+                    <!-- Catatan admin -->
+                    <td class="px-5 py-3 max-w-xs">
+                        {% if p['admin_notes'] %}
+                        <span class="text-xs text-slate-600 line-clamp-2" title="{{ p['admin_notes'] }}">
+                            {{ p['admin_notes'][:60] }}{% if p['admin_notes']|length > 60 %}…{% endif %}
+                        </span>
+                        {% else %}
+                        <span class="text-gray-300 text-xs">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Aksi -->
+                    <td class="px-5 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition">
+                            <a href="{{ url_for('admin_edit', product_id=p['id']) }}"
+                               class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                                <i class="fas fa-edit text-sm"></i>
+                            </a>
+                            <a href="{{ url_for('admin_delete', product_id=p['id']) }}"
+                               onclick="return confirm('Hapus produk ini?')"
+                               class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="Hapus">
+                                <i class="fas fa-trash text-sm"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer count -->
+    <div class="px-5 py-3 border-t border-gray-50 text-xs text-gray-400">
+        Total: <strong class="text-gray-600">{{ products|length }}</strong> produk
+    </div>
+</div>
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function () {
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll('#productTable tbody tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

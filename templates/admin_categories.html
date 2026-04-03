@@ -1,0 +1,207 @@
+{% extends "admin_base.html" %}
+{% block header_title %}Kelola Kategori{% endblock %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+  .kk * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
+  .kk { padding: 32px; background: #f8fafc; min-height: 100vh; }
+  .kk-title { font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 24px; letter-spacing: -0.4px; }
+  .kk-card { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden; }
+  .kk-header { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .kk-header-label { font-size: 15px; font-weight: 600; color: #0f172a; }
+  .kk-btn-add { padding: 9px 18px; background: #6366f1; color: #fff; border: none; border-radius: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .kk-btn-add:hover { background: #4f46e5; }
+  table.kk-table { width: 100%; border-collapse: collapse; }
+  .kk-table thead { background: #f8fafc; }
+  .kk-table th { padding: 12px 24px; text-align: left; font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; border-bottom: 1px solid #f1f5f9; }
+  .kk-table th.c, .kk-table td.c { text-align: center; }
+  .kk-table td { padding: 14px 24px; font-size: 14px; color: #1e293b; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+  .kk-table tr:last-child td { border-bottom: none; }
+  .kk-table tbody tr:hover { background: #fafbff; }
+  .kk-logo { width: 44px; height: 44px; border-radius: 8px; object-fit: contain; background: #f1f5f9; padding: 4px; border: 1px solid #e2e8f0; }
+  .kk-no-logo { font-size: 12px; color: #94a3b8; background: #f1f5f9; border-radius: 6px; padding: 4px 10px; }
+  .kk-count { display: inline-block; background: #eff6ff; color: #3b82f6; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .kk-actions { display: flex; gap: 8px; justify-content: center; }
+  .kk-btn-edit, .kk-btn-del { padding: 6px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 500; cursor: pointer; border: none; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .kk-btn-edit { background: #eff6ff; color: #3b82f6; }
+  .kk-btn-edit:hover { background: #dbeafe; }
+  .kk-btn-del { background: #fff1f2; color: #ef4444; }
+  .kk-btn-del:hover { background: #fee2e2; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: #fff; border-radius: 20px; padding: 32px; width: 440px; max-width: 95vw; box-shadow: 0 24px 60px rgba(0,0,0,0.18); animation: modalIn 0.25s cubic-bezier(0.16,1,0.3,1); }
+  @keyframes modalIn { from { opacity:0; transform: translateY(16px) scale(0.97); } to { opacity:1; transform: none; } }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .modal-title { font-size: 17px; font-weight: 700; color: #0f172a; }
+  .modal-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 8px; font-size: 16px; cursor: pointer; color: #64748b; }
+  .modal-close:hover { background: #e2e8f0; }
+  .field { margin-bottom: 18px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 7px; }
+  .kk-input-modal { width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; color: #0f172a; background: #f8fafc; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .kk-input-modal:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); background: #fff; }
+  .upload-zone { border: 2px dashed #e2e8f0; border-radius: 14px; padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: #fafbff; position: relative; }
+  .upload-zone:hover { border-color: #6366f1; background: #f0f1ff; }
+  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; }
+  .upload-text { font-size: 14px; font-weight: 600; color: #6366f1; margin-bottom: 4px; }
+  .upload-sub { font-size: 12px; color: #94a3b8; }
+  .preview-wrap { display: none; flex-direction: column; align-items: center; gap: 10px; margin-top: 14px; }
+  .preview-wrap.show { display: flex; }
+  .preview-img { width: 80px; height: 80px; border-radius: 12px; object-fit: contain; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 6px; }
+  .preview-name { font-size: 12.5px; color: #64748b; }
+  .preview-change { font-size: 12px; color: #6366f1; background: none; border: none; cursor: pointer; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .modal-footer { display: flex; gap: 10px; margin-top: 24px; }
+  .btn-cancel { flex: 1; padding: 11px; background: #f1f5f9; color: #64748b; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .btn-save { flex: 2; padding: 11px; background: #6366f1; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+  .btn-save:hover { background: #4f46e5; }
+</style>
+
+<div class="kk">
+  <div class="kk-title">Kelola Kategori</div>
+  <div class="kk-card">
+    <div class="kk-header">
+      <span class="kk-header-label">Daftar Kategori</span>
+      <button class="kk-btn-add" onclick="openModal('add')">＋ Tambah Kategori</button>
+    </div>
+    <table class="kk-table">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th class="c">Logo</th>
+          <th class="c">Produk</th>
+          <th class="c">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td style="font-weight:500">{{ cat.name }}</td>
+          <td class="c">
+            {% if cat.logo_url %}
+              <img class="kk-logo" src="{{ cat.logo_url }}">
+            {% else %}
+              <span class="kk-no-logo">— No Logo</span>
+            {% endif %}
+          </td>
+          <td class="c"><span class="kk-count">{{ cat.product_count }}</span></td>
+          <td class="c">
+            <div class="kk-actions">
+              <button class="kk-btn-edit"
+                onclick="openModal('edit', {{ cat.id|tojson }}, {{ cat.name|tojson }}, {{ (cat.logo_url or '')|tojson }})">
+                Edit
+              </button>
+              <button class="kk-btn-del"
+                onclick="if(confirm('Hapus kategori ini?')) window.location='{{ url_for('admin_category_delete', category_id=cat.id) }}'">
+                Hapus
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH / EDIT -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Tambah Kategori</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <form id="modalForm" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="category_id" id="inputCategoryId">
+
+      <div class="field">
+        <label>Nama Kategori</label>
+        <input class="kk-input-modal" name="name" id="inputName" placeholder="cth. Yamaha Marine" required>
+      </div>
+
+      <div class="field">
+        <label>Logo Brand</label>
+        <!-- Preview logo lama (saat edit) -->
+        <div id="existingLogoWrap" style="display:none; margin-bottom:10px; text-align:center;">
+          <img id="existingLogoImg" style="width:60px;height:60px;border-radius:10px;object-fit:contain;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px;">
+          <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Logo saat ini</p>
+        </div>
+
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" name="logo" id="fileInput" accept="image/*" onchange="handleFile(this)">
+          <div class="upload-icon">🖼️</div>
+          <div class="upload-text">Pilih gambar dari galeri</div>
+          <div class="upload-sub">PNG, JPG, WEBP · Maks 2MB</div>
+        </div>
+        <div class="preview-wrap" id="previewWrap">
+          <img id="previewImg" class="preview-img" src="">
+          <span class="preview-name" id="previewName"></span>
+          <button type="button" class="preview-change" onclick="resetFile()">✕ Ganti gambar</button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Batal</button>
+        <button type="submit" class="btn-save" id="btnSave">Tambah</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openModal(mode, catId, name, logoUrl) {
+    document.getElementById('modalOverlay').classList.add('active');
+    resetFile();
+
+    if (mode === 'add') {
+      document.getElementById('modalTitle').textContent = 'Tambah Kategori';
+      document.getElementById('btnSave').textContent = 'Tambah';
+      document.getElementById('modalForm').action = "{{ url_for('admin_category_add') }}";
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputCategoryId').value = '';
+      document.getElementById('existingLogoWrap').style.display = 'none';
+    } else {
+      document.getElementById('modalTitle').textContent = 'Edit Kategori';
+      document.getElementById('btnSave').textContent = 'Simpan Perubahan';
+      document.getElementById('modalForm').action = `/admin/categories/edit/${catId}`;
+      document.getElementById('inputName').value = name;
+      document.getElementById('inputCategoryId').value = catId;
+      if (logoUrl) {
+        document.getElementById('existingLogoImg').src = logoUrl;
+        document.getElementById('existingLogoWrap').style.display = 'block';
+      } else {
+        document.getElementById('existingLogoWrap').style.display = 'none';
+      }
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+  function handleFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('previewImg').src = e.target.result;
+      document.getElementById('previewName').textContent = file.name;
+      document.getElementById('uploadZone').style.display = 'none';
+      document.getElementById('previewWrap').classList.add('show');
+      document.getElementById('existingLogoWrap').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+  function resetFile() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('previewImg').src = '';
+    document.getElementById('previewWrap').classList.remove('show');
+    document.getElementById('uploadZone').style.display = '';
+  }
+</script>
+
+{% endblock %}

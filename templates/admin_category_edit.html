@@ -1,0 +1,37 @@
+{% extends "admin_base.html" %}
+{% block header_title %}Edit {{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+
+    <form method="POST" action="{{ url_for('admin_category_edit', category_id=category.id) }}">
+        <div class="space-y-6">
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
+                <input type="text" name="name" value="{{ category.name }}" required 
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Logo URL (opsional)</label>
+                <input type="text" name="logo_url" value="{{ category.logo_url or '' }}" 
+                       placeholder="/static/images/vini.png"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1">Contoh: /static/images/brand.png</p>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-blue-700 transition">
+                    <i class="fas fa-save mr-2"></i>Update
+                </button>
+                <a href="{{ url_for('admin_categories') }}" class="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-bold hover:bg-gray-200 transition text-center">
+                    Batal
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+</div>
+{% endblock %}

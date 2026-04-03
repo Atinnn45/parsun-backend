@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  .card-edit { border: 1px solid #e5e7eb; background: #fff; border-radius: 16px; box-shadow: 0 8px 24px rgba(15,23,42,0.1); }
+  .form-field { margin-bottom: 18px; }
+  .form-field label { display: block; margin-bottom: 6px; color: #475569; font-weight: 600; }
+  .form-field input { width:100%; padding: 0.72rem 0.85rem; border: 1px solid #d1d5db; border-radius: 10px; }
+  .btn-primary-custom { background: linear-gradient(135deg, #4f46e5, #6366f1); color:#fff; border:none; padding: 0.75rem 1.2rem; border-radius: 10px; }
+</style>
+<div class="max-w-3xl mx-auto mt-8">
+  <div class="card-edit p-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Edit Katalog Gambar</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+      <div class="form-field">
+        <label>Brand</label>
+        <input type="text" name="brand" value="{{ catalog['brand'] }}" required>
+      </div>
+
+      <div class="form-field">
+        <label>PK</label>
+        <input type="text" name="pk" value="{{ catalog['pk'] }}" required>
+      </div>
+
+      <div class="form-field">
+        <label>Gambar Katalog Saat Ini</label>
+        {% if catalog.pdf_file %}
+          <img src="{{ url_for('static', filename='catalog_images/' + catalog.pdf_file) }}" alt="Katalog" class="w-36 h-36 rounded-lg object-cover border border-gray-200">
+        {% else %}
+          <p class="text-gray-500">Belum ada gambar</p>
+        {% endif %}
+      </div>
+
+      <div class="form-field">
+        <label>Ganti Gambar (opsional)</label>
+        <input type="file" name="image_file" accept="image/*">
+        <small class="text-gray-500">Kosongkan jika tidak diganti.</small>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button type="submit" class="btn-primary-custom">Simpan Perubahan</button>
+        <a href="{{ url_for('admin_catalog_list') }}" class="text-gray-600 hover:text-gray-800">Batal</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

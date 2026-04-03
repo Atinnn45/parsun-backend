@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog - Parsun Batam</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='catalog.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <h1>Catalog</h1>
+            <p>Browse our complete product catalogs</p>
+        </header>
+
+        <div class="brands-grid" id="brandsGrid">
+            {% if brands %}
+                {% for brand in brands %}
+                <a href="{{ url_for('catalog_brand', brand=brand.brand|urlencode) }}" class="brand-card">
+                    <div class="brand-image">
+                        <div class="brand-placeholder">{{ brand.brand[0]|upper }}</div>
+                    </div>
+                    <h3 class="brand-name">{{ brand.brand }}</h3>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <p>No catalogs available</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='catalog.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Halaman Tidak Ditemukan - Parsun Batam{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===== 404 SCOPED STYLES ===== */
+.yeti-page {
+    margin: -1.5rem -1rem;
+    background-color: #24658F;
+    min-height: calc(100vh - 64px - 260px);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+}
+
+#yeti-yetiSVG {
+    width: 600px;
+    height: 470px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+#yeti-lightSVG {
+    width: 600px;
+    height: 470px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.yeti-content {
+    padding: 5rem 3rem 0 25rem;
+    position: relative;
+    z-index: 10;
+    font-family: "Source Sans Pro", 'Plus Jakarta Sans', sans-serif;
+    color: #FFF;
+    flex: 1;
+}
+
+.yeti-content h3 {
+    margin: 0 0 0.8rem;
+    font-size: 2.625rem;
+    font-weight: 900;
+    line-height: 120%;
+}
+
+.yeti-content p {
+    font-size: 1.25rem;
+    font-weight: normal;
+    line-height: 150%;
+    color: #d1e2ed;
+    margin-bottom: 1.8rem;
+}
+
+.yeti-content p span {
+    text-decoration: line-through;
+}
+
+.yeti-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #F5C518;
+    color: #0A2342;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 11px 26px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(245,197,24,0.35);
+}
+
+.yeti-back-btn:hover {
+    background: #e6b800;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(245,197,24,0.45);
+    color: #0A2342;
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .yeti-page {
+        flex-direction: column;
+        min-height: calc(100vh - 120px - 320px);
+    }
+
+    #yeti-yetiSVG,
+    #yeti-lightSVG {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-width: 600px;
+    }
+
+    .yeti-content {
+        padding: 1.5rem 1.25rem;
+        background: rgba(9, 51, 79, 0.85);
+    }
+
+    .yeti-content h3 {
+        font-size: 1.6rem;
+    }
+
+    .yeti-content p {
+        font-size: 1rem;
+    }
+}
+</style>
+
+<div class="yeti-page">
+
+    <!-- SVG Yeti dari CodePen (asli) -->
+    <svg id="yeti-yetiSVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 600 470">
+        <linearGradient id="flashlightGrad" x1="126.5842" x2="90.5842" y1="176.5625" y2="213.5625" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#333"/>
+            <stop offset=".076" stop-color="#414141"/>
+            <stop offset=".2213" stop-color="#555"/>
+            <stop offset=".3651" stop-color="#626262"/>
+            <stop offset=".5043" stop-color="#666"/>
+            <stop offset=".6323" stop-color="#606060"/>
+            <stop offset=".8063" stop-color="#4e4e4e"/>
+            <stop offset="1" stop-color="#333"/>
+        </linearGradient>
+        <path fill="#24658F" d="M0 0h600v470H0z"/>
+        <g id="pillow">
+            <path fill="#09334F" d="M241.3 124.6c-52.9 28.6-112.6 48-181.8 54.4-40.9 6.8-64.6-82.3-31.9-106.6C84 43.8 144.8 26.2 209.4 18c32.8 13 48.5 75.3 31.9 106.6z"/>
+            <path fill="none" stroke="#001726" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M52.8 91.3c10 7.4 25.4 50.7 16.1 65.8M241.3 124.6c-52.9 28.6-112.6 48-181.8 54.4-40.9 6.8-64.6-82.3-31.9-106.6C84 43.8 144.8 26.2 209.4 18c32.8 13 48.5 75.3 31.9 106.6z"/>
+            <path fill="#09334F" stroke="#001726" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M201.9 21.9c4.9-8 14.1-11.3 20.6-7.3s7.7 13.7 2.8 21.7"/>
+            <path fill="#09334F" stroke="#001726" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M242.1 103.1c1.8.3 3.6.9 5.3 1.8 8.4 4.1 12.6 13 9.3 19.8s-12.9 9-21.3 4.9c-1.9-.9-3.6-2.1-5-3.4"/>
+        </g>
+        <!-- Yeti body -->
+        <g id="yeti">
+            <path fill="#E8F4F8" d="M143.8 253.8c-8.2 4.2-13.5 12.1-13.9 21-0.4 8.9 4.2 17.4 12 22.3l28.5 18.5c3.2 2.1 5.1 5.6 5.1 9.4v45.2c0 6.2 5 11.2 11.2 11.2h87.6c6.2 0 11.2-5 11.2-11.2v-45.2c0-3.8 1.9-7.3 5.1-9.4l28.5-18.5c7.8-4.9 12.4-13.4 12-22.3-0.4-8.9-5.7-16.8-13.9-21l-86.7-44.3-87 44.3z"/>
+            <ellipse fill="#E8F4F8" cx="156" cy="220" rx="35" ry="45"/>
+            <ellipse fill="#E8F4F8" cx="318" cy="220" rx="35" ry="45"/>
+            <!-- Face -->
+            <ellipse fill="#E8F4F8" cx="237" cy="195" rx="70" ry="75"/>
+            <!-- Eyes -->
+            <circle fill="#1a1a2e" cx="212" cy="185" r="10"/>
+            <circle fill="#1a1a2e" cx="262" cy="185" r="10"/>
+            <circle fill="white" cx="215" cy="182" r="3"/>
+            <circle fill="white" cx="265" cy="182" r="3"/>
+            <!-- Nose -->
+            <ellipse fill="#b0bec5" cx="237" cy="202" rx="8" ry="5"/>
+            <!-- Mouth - surprised -->
+            <path fill="#1a1a2e" d="M220 218 Q237 235 254 218 Q237 228 220 218z"/>
+            <!-- Horns/ears -->
+            <path fill="#d0e8f0" d="M175 150 Q160 110 180 95 Q190 140 200 155z"/>
+            <path fill="#d0e8f0" d="M299 150 Q314 110 294 95 Q284 140 274 155z"/>
+        </g>
+        <!-- Flashlight -->
+        <g id="flashlight">
+            <rect fill="url(#flashlightGrad)" x="88" y="176" width="76" height="38" rx="8"/>
+            <circle fill="#FFE082" cx="164" cy="195" r="12"/>
+            <circle fill="#FFF9C4" cx="164" cy="195" r="7"/>
+        </g>
+        <!-- Light cone from flashlight -->
+        <g id="lightCone" opacity="0.18">
+            <path fill="#FFF8E1" d="M176 195 L420 120 L440 195 L420 270 Z"/>
+        </g>
+        <!-- Snow ground -->
+        <path fill="#E3F2FD" opacity="0.9" d="M0 400 Q150 370 300 390 Q450 410 600 385 L600 470 L0 470Z"/>
+        <path fill="white" opacity="0.6" d="M0 430 Q100 415 200 425 Q350 440 500 420 Q560 415 600 425 L600 470 L0 470Z"/>
+    </svg>
+
+    <!-- Teks konten -->
+    <div class="yeti-content">
+        <h3>Halo?? Ada yang di sana?!</h3>
+        <p>
+            Kami tahu ini menakutkan, tapi halaman yang kamu cari
+            tidak dapat ditemukan. Mungkin itu hanya mimpi
+            <span>buruk</span>?
+        </p>
+        <a href="/" class="yeti-back-btn">
+            <i class="fas fa-home"></i>
+            Kembali ke Beranda
+        </a>
+    </div>
+
+</div>
+
+<script>
+/* Pulsing light cone */
+(function() {
+    const cone = document.getElementById('lightCone');
+    if (!cone) return;
+    let t = 0;
+    function pulse() {
+        t += 0.04;
+        cone.style.opacity = 0.12 + Math.sin(t) * 0.08;
+        requestAnimationFrame(pulse);
+    }
+    pulse();
+})();
+</script>
+
+{% endblock %}

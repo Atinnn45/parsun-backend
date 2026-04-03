@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - Parsun Batam{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-5 md:p-10">
+
+        <!-- Image -->
+        <div class="relative group mb-4 md:mb-0">
+            <div class="rounded-xl overflow-hidden bg-gray-50 border border-gray-100" style="aspect-ratio:1/1">
+                {% if product.image %}
+                <img src="{{ url_for('static', filename='img/produk/' ~ product.image) }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                     alt="{{ product.name }}">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-300">
+                    <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                </div>
+                {% endif %}
+            </div>
+            {% if product.stock|int <= 0 %}
+            <div class="absolute top-4 left-4">
+                <span class="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow">INDENT</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="flex flex-col">
+            <!-- Breadcrumb -->
+            <nav class="flex text-xs text-gray-400 mb-3 gap-1.5 items-center">
+                <a href="/" class="hover:text-blue-600">Home</a>
+                <span>/</span>
+                <a href="{{ url_for('category_page', category_id=product.category_id) }}" class="hover:text-blue-600">{{ product.category_name }}</a>
+            </nav>
+
+            <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 mb-1 leading-tight">{{ product.name }}</h1>
+            <div class="text-xs text-gray-400 font-mono mb-4">SKU: {{ product.product_code }}</div>
+
+            <!-- Price hidden + stock -->
+            <div class="flex items-center gap-4 mb-5">
+                <div class="text-2xl font-black text-gray-400 italic">Rp --</div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full {{ 'bg-green-500' if product.stock|int > 0 else 'bg-red-500' }}"></span>
+                    <span class="text-sm font-semibold {{ 'text-green-600' if product.stock|int > 0 else 'text-red-600' }}">
+                        {{ 'Tersedia: ' ~ product.stock if product.stock|int > 0 else 'Stok Habis (Indent)' }}
+                    </span>
+                </div>
+                <div class="text-xs text-gray-400 border-l border-gray-200 pl-3">Terjual: {{ product.sold or 0 }}</div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-5 p-4 bg-gray-50 rounded-xl border border-gray-100 flex-1">
+                <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Deskripsi Produk</h3>
+                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                    {{ product.description or 'Tidak ada deskripsi untuk produk ini.' }}
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <!-- Qty -->
+                    <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden flex-shrink-0">
+                        <button onclick="changeQty(-1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 transition text-gray-600 font-bold">−</button>
+                        <input type="number" id="qty" value="1" min="1"
+                            class="w-12 text-center font-bold focus:outline-none bg-white text-sm">
+                        <button onclick="changeQty(1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 transition text-gray-600 font-bold">+</button>
+                    </div>
+
+                    <!-- ✅ PERBAIKAN: gunakan data attribute terpisah, bukan tojson -->
+                    <button id="add-to-cart-btn"
+                        class="flex-1 bg-[#0A2342] text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm shadow-md shadow-blue-100"
+                        data-id="{{ product.id }}"
+                        data-name="{{ product.name }}"
+                        data-code="{{ product.product_code or '' }}"
+                        data-category="{{ product.category_name or '' }}"
+                        data-image="{{ product.image or '' }}">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2L3 6v11a1 1 0 001 1h12a1 1 0 001-1V6l-7-4zM5 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm10 0a1 1 0 112 0v6a1 1 0 11-2 0V8z"/></svg>
+                        <span>Tambah ke Keranjang</span>
+                    </button>
+                </div>
+
+                <!-- WhatsApp -->
+                <a href="https://wa.me/62895610457056?text=Halo Parsun Batam, saya ingin tanya tentang: *{{ product.name }}*"
+                   target="_blank"
+                   class="w-full bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fab fa-whatsapp text-lg"></i>
+                    <span>Tanya via WhatsApp</span>
+                </a>
+
+                <p class="text-center text-xs text-gray-400 italic">
+                    * Harga tidak ditampilkan. Hubungi kami via WhatsApp untuk info harga terkini.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function changeQty(delta) {
+    const input = document.getElementById('qty');
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    input.value = val;
+}
+
+// ✅ PERBAIKAN: baca data attribute satu per satu, bukan dari tojson
+document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+    const qty = parseInt(document.getElementById('qty').value) || 1;
+    const product = {
+        product_id:    this.dataset.id,
+        name:          this.dataset.name,
+        product_code:  this.dataset.code,
+        category_name: this.dataset.category,
+        image:         this.dataset.image
+    };
+    addToCart(product, qty, this);
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Login</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0b0f1a;
+    --card: #111827;
+    --border: rgba(255,255,255,0.07);
+    --accent: #6ee7b7;
+    --accent2: #3b82f6;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --input-bg: rgba(255,255,255,0.04);
+    --error: #f87171;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(110,231,183,0.12) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: drift1 8s ease-in-out infinite alternate;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%);
+    bottom: -80px; right: -80px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: drift2 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift1 { from { transform: translate(0,0); } to { transform: translate(40px,30px); } }
+  @keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-30px,-20px); } }
+
+  .card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 44px;
+    width: 380px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 16px rgba(110,231,183,0.25);
+  }
+
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  .error-msg {
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.2);
+    color: var(--error);
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+    transition: color 0.2s;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+  }
+
+  input::placeholder { color: rgba(148,163,184,0.4); }
+
+  input:focus {
+    border-color: rgba(110,231,183,0.4);
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 0 0 3px rgba(110,231,183,0.08);
+  }
+
+  .input-wrap:focus-within .input-icon {
+    color: var(--accent);
+  }
+
+  button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0b0f1a;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(110,231,183,0.2);
+  }
+
+  button:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(110,231,183,0.3);
+  }
+
+  button:active { transform: translateY(0); }
+
+  .demo-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .demo-hint span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .demo-badge {
+    font-size: 11px;
+    background: rgba(110,231,183,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(110,231,183,0.2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-row">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">AdminPanel</span>
+  </div>
+
+  <h2>Welcome back</h2>
+  <p class="subtitle">Masuk ke dashboard admin Anda</p>
+
+  {% if error %}
+  <div class="error-msg">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <div class="field">
+      <label>Username</label>
+      <div class="input-wrap">
+        <input name="username" placeholder="Masukkan username" required autocomplete="username">
+        <span class="input-icon">👤</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="input-wrap">
+        <input name="password" type="password" placeholder="Masukkan password" required autocomplete="current-password">
+        <span class="input-icon">🔑</span>
+      </div>
+    </div>
+
+    <button type="submit">Masuk →</button>
+  </form>
+
+  <div class="demo-hint">
+    <span>Demo akun:</span>
+    <span class="demo-badge">admin / parsun</span>
+  </div>
+</div>
+
+</body>
+</html>
