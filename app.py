@@ -588,95 +588,74 @@ def admin_edit_catalog(id):
 @app.route("/ai_command", methods=["POST"])
 def ai_command():
     data = request.get_json()
-    text = data.get("message", "")
-    if not isinstance(text, str):
-        text = str(text)
-    text = text.lower().strip()
+    text = data.get("message", "").lower()
 
     try:
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
 
-        # === UPDATE STOCK ===
-        match_stock = re.search(r"^update\s+stock\s+(.+?)\s+jadi\s+(\d+)$", text)
+        # =========================
+        # UPDATE STOCK
+        # =========================
+        match_stock = re.search(r"(update|ubah)\s+stock\s+(.+?)\s+jadi\s+(\d+)", text)
         if match_stock:
-            name = match_stock.group(1).strip()
-            value = int(match_stock.group(2))
+            name = match_stock.group(2)
+            value = int(match_stock.group(3))
 
-            cursor.execute(
-                """
+            cursor.execute("""
                 UPDATE products
                 SET stock = ?
                 WHERE LOWER(name) LIKE ?
-                """,
-                (value, f"%{name}%")
-            )
+            """, (value, f"%{name}%"))
+
             conn.commit()
-            updated_rows = cursor.rowcount
             conn.close()
 
-            if updated_rows == 0:
-                return jsonify({"reply": f"Produk dengan nama mirip '{name}' tidak ditemukan untuk update stock."})
+            return jsonify({"reply": f"Stock '{name}' berhasil diubah jadi {value}"})
 
-            return jsonify({"reply": f"Stock produk yang mirip '{name}' berhasil diubah jadi {value} ({updated_rows} baris terpengaruh)."})
-
-        # === UPDATE SOLD ===
-        match_sold = re.search(r"^update\s+sold\s+(.+?)\s+jadi\s+(\d+)$", text)
+        # =========================
+        # UPDATE SOLD
+        # =========================
+        match_sold = re.search(r"(update|ubah)\s+sold\s+(.+?)\s+jadi\s+(\d+)", text)
         if match_sold:
-            name = match_sold.group(1).strip()
-            value = int(match_sold.group(2))
+            name = match_sold.group(2)
+            value = int(match_sold.group(3))
 
-            cursor.execute(
-                """
+            cursor.execute("""
                 UPDATE products
                 SET sold = ?
                 WHERE LOWER(name) LIKE ?
-                """,
-                (value, f"%{name}%")
-            )
+            """, (value, f"%{name}%"))
+
             conn.commit()
-            updated_rows = cursor.rowcount
             conn.close()
 
-            if updated_rows == 0:
-                return jsonify({"reply": f"Produk dengan nama mirip '{name}' tidak ditemukan untuk update sold."})
+            return jsonify({"reply": f"Sold '{name}' berhasil diubah jadi {value}"})
 
-            return jsonify({"reply": f"Sold produk yang mirip '{name}' berhasil diubah jadi {value} ({updated_rows} baris terpengaruh)."})
-
-        # === UPDATE NAMA PRODUK ===
-        match_name = re.search(r"^(ubah\s+nama|rename)\s+(.+?)\s+jadi\s+(.+)$", text)
+        # =========================
+        # UPDATE NAMA PRODUK
+        # =========================
+        match_name = re.search(r"(update|ubah)\s+nama\s+(.+?)\s+jadi\s+(.+)", text)
         if match_name:
-            old_name = match_name.group(2).strip()
-            new_name = match_name.group(3).strip()
+            old_name = match_name.group(2)
+            new_name = match_name.group(3)
 
-            if new_name == "":
-                conn.close()
-                return jsonify({"reply": "Nama baru tidak boleh kosong."})
-
-            cursor.execute(
-                """
+            cursor.execute("""
                 UPDATE products
                 SET name = ?
                 WHERE LOWER(name) LIKE ?
-                """,
-                (new_name, f"%{old_name}%")
-            )
+            """, (new_name, f"%{old_name}%"))
+
             conn.commit()
-            updated_rows = cursor.rowcount
             conn.close()
 
-            if updated_rows == 0:
-                return jsonify({"reply": f"Produk dengan nama mirip '{old_name}' tidak ditemukan untuk ubah nama."})
-
-            return jsonify({"reply": f"Nama produk yang mirip '{old_name}' berhasil diubah jadi '{new_name}' ({updated_rows} baris terpengaruh)."})
+            return jsonify({"reply": f"Nama produk '{old_name}' diubah jadi '{new_name}'"})
 
         conn.close()
-        return jsonify({
-            "reply": "Perintah tidak dikenali. Gunakan: 'update stock {nama} jadi {angka}', 'update sold {nama} jadi {angka}', atau 'ubah nama {nama_lama} jadi {nama_baru}'."
-        })
+        return jsonify({"reply": "Perintah tidak dikenali. Gunakan: update stock/sold/nama ..."})
 
     except Exception as e:
-        return jsonify({"reply": f"Error: {str(e)}"}), 500
+        return jsonify({"reply": f"Error: {str(e)}"})
 
 @app.route("/upload_product_image", methods=["POST"])
 def upload_product_image():
