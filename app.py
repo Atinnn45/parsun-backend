@@ -5,6 +5,7 @@ import sqlite3
 from datetime import timedelta, datetime
 from collections import defaultdict
 from urllib.parse import unquote
+import re
 
 app = Flask(__name__)
 
@@ -99,6 +100,9 @@ def init_db():
     conn.commit()
     conn.close()
 
+@app.route("/ai_command", methods=["POST"])
+def ai_command():
+    ...
 
 # ===================== HOME ==============================
 @app.route("/")
