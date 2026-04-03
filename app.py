@@ -588,123 +588,82 @@ def admin_edit_catalog(id):
     conn.close()
     return render_template("admin_edit_catalog.html", catalog=catalog)
 
-@app.route("/update_product", methods=["POST"])
-def update_product():
-    data = request.json
-    print("Received data:", data)
-    
-    action = data.get("action", "").strip().lower()
-    name = data.get("name", "").strip()
-    
-    valid_actions = [
-        "update_price",
-        "update_name", 
-        "update_stock",
-        "update_sold",
-        "add_image"
-    ]
-    
-    if not action or action not in valid_actions:
-        return jsonify({
-            "status": "error",
-            "message": f"Invalid action: {action}"
-        }), 400
-    
-    if not name:
-        return jsonify({"status": "error", "message": "Name is required"}), 400
-    
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # Find product using partial LIKE match (case-insensitive)
-    search_pattern = '%' + name + '%'
-    cursor.execute("SELECT id, name FROM products WHERE LOWER(name) LIKE LOWER(?)", (search_pattern,))
-    products = cursor.fetchall()
-    
-    if len(products) == 0:
-        conn.close()
-        return jsonify({"status": "error", "message": "Product not found"}), 404
-    
-    if len(products) > 1:
-        conn.close()
-        return jsonify({
-            "status": "error", 
-            "message": "Multiple products found, please be more specific",
-            "matches": [dict(p) for p in products]
-        }), 400
-    
-    product = products[0]
-    product_id = product['id']
-    matched_name = product['name']
-    
+@app.route("/ai_command", methods=["POST"])
+def ai_command():
     try:
-        if action == "update_price":
-            price = data.get("price")
-            if price is None:
-                return jsonify({"status": "error", "message": "Price is required for update_price"}), 400
-            if not isinstance(price, (int, float)):
-                return jsonify({"status": "error", "message": "price must be a number"}), 400
-            cursor.execute("UPDATE products SET price = ? WHERE id = ?", (price, product_id))
+        data = request.json
+        text = data.get("text", "").strip().lower()
+        print("AI INPUT:", text)
         
-        elif action == "update_stock":
-            stock = data.get("stock")
-            if stock is None:
-                return jsonify({"status": "error", "message": "Stock is required for update_stock"}), 400
-            if not isinstance(stock, int):
-                return jsonify({"status": "error", "message": "stock must be an integer"}), 400
-            cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (stock, product_id))
+        import re
         
-        elif action == "update_sold":
-            sold = data.get("sold")
-            if sold is None:
-                return jsonify({"status": "error", "message": "Sold is required for update_sold"}), 400
-            if not isinstance(sold, int):
-                return jsonify({"status": "error", "message": "sold must be an integer"}), 400
-            cursor.execute("UPDATE products SET sold = ? WHERE id = ?", (sold, product_id))
-        
-        elif action == "update_name":
-            new_name = data.get("new_name")
-            if not new_name:
-                return jsonify({"status": "error", "message": "new_name is required"}), 400
+        # Stock update: "update stock nama jadi 10" or "ubah stock nama jadi 10" or "stock nama jadi 10"
+        stock_match = re.search(r"(update|ubah)?\s*stock\s+(.+?)\s+(?:jadi|ke)\s+(\d+)", text)
+        if stock_match:
+            product_name = stock_match.group(2).strip()
+            new_stock = int(stock_match.group(3))
             
-            cursor.execute("UPDATE products SET name = ? WHERE id = ?", (new_name, product_id))
-        
-        elif action == "add_image":
-            image = data.get("image")
-            if not image:
-                return jsonify({"status": "error", "message": "image is required"}), 400
-            
-            cursor.execute("UPDATE products SET image = ? WHERE id = ?", (image, product_id))
-        
-        conn.commit()
-        
-        if cursor.rowcount == 0:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE products SET stock = ? WHERE LOWER(name) LIKE LOWER(?)", (new_stock, f"%{product_name}%"))
+            rows_updated = cursor.rowcount
+            conn.commit()
             conn.close()
-            return jsonify({
-                "status": "error",
-                "message": "Product not found or no changes made"
-            }), 404
-        
-        # Audit log
-        cursor.execute(
-            "INSERT INTO logs (action, product) VALUES (?, ?)",
-            (action, name)
-        )
-        conn.commit()
-        
-        conn.close()
-        return jsonify({
-            "success": True,
-            "status": "success",
-            "action": action,
-            "product": name,
-            "message": f"{action} berhasil"
-        })
             
+            if rows_updated > 0:
+                return jsonify({"status": "success", "reply": f"✅ Stock {product_name} diubah menjadi {new_stock}"})
+            else:
+                return jsonify({"status": "error", "reply": "❌ Produk '{product_name}' tidak ditemukan"})
+        
+        # Sold update: "update sold nama jadi 10"
+        sold_match = re.search(r"(update|ubah)?\s*sold\s+(.+?)\s+(?:jadi|ke)\s+(\d+)", text)
+        if sold_match:
+            product_name = sold_match.group(2).strip()
+            new_sold = int(sold_match.group(3))
+            
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE products SET sold = ? WHERE LOWER(name) LIKE LOWER(?)", (new_sold, f"%{product_name}%"))
+            rows_updated = cursor.rowcount
+            conn.commit()
+            conn.close()
+            
+            if rows_updated > 0:
+                return jsonify({"status": "success", "reply": f"✅ Sold {product_name} diubah menjadi {new_sold}"})
+            else:
+                return jsonify({"status": "error", "reply": f"❌ Produk '{product_name}' tidak ditemukan"})
+        
+        # Default response
+        return jsonify({"status": "error", "reply": "Perintah tidak dikenali. Contoh: 'update stock Oil Pump jadi 10' atau 'ubah sold Parsun F15 jadi 5'"})
+    
     except Exception as e:
-        conn.rollback()
+        print(f"AI COMMAND ERROR: {str(e)}")
+        return jsonify({"status": "error", "reply": f"Server error: {str(e)}"}), 500
+
+@app.route("/check_db")
+def check_db():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        cursor.execute("SELECT COUNT(*) FROM products")
+        product_count = cursor.fetchone()[0]
+        
+        cursor.execute("PRAGMA table_info(products)")
+        products_schema = [row[1] for row in cursor.fetchall()]
+        
         conn.close()
-        return jsonify({"status": "error", "message": f"Database error: {str(e)}"}), 500
+        
+        return jsonify({
+            "tables": tables,
+            "product_count": product_count,
+            "products_schema": products_schema[:10]  # first 10 columns
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 # ===================== ADMIN LOGIN ==============================
