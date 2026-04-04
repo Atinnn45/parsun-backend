@@ -22,6 +22,7 @@ app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, "static/img/produk")
 app.config['CATALOG_IMAGE_FOLDER'] = os.path.join(BASE_DIR, "static/catalog_images")
 app.config['PDF_UPLOAD_FOLDER'] = os.path.join(BASE_DIR, "static/catalog_pdf")  # backward compatibility
 app.config['LOGO_UPLOAD_FOLDER'] = os.path.join(BASE_DIR, "static/img/logos")
+app.config['ADMIN_LOGIN_TOKEN'] = os.environ.get('ADMIN_LOGIN_TOKEN', 'rahasia_admin_token_2026')
 
 print("DATABASE PATH:", DATABASE)
 
@@ -727,6 +728,10 @@ def check_db():
 # ===================== ADMIN LOGIN ==============================
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
+    token = request.args.get("token")
+    if token != app.config['ADMIN_LOGIN_TOKEN']:
+        abort(404)
+
     if request.method == "POST":
         if request.form["username"] == "admin" and request.form["password"] == "parsun":
             session["admin"] = True
@@ -741,7 +746,7 @@ def admin_login():
 @app.route("/admin/logout")
 def admin_logout():
     session.pop("admin", None)
-    return redirect(url_for("admin_login"))
+    return redirect(url_for("admin_login", token=app.config['ADMIN_LOGIN_TOKEN']))
 
 
 # ===================== SESSION TIMEOUT ==============================
@@ -766,7 +771,7 @@ def session_timeout_check():
 def protect_admin_routes():
     if request.path.startswith("/admin") and request.path != "/admin/login":
         if "admin" not in session:
-            return redirect(url_for("admin_login"))
+            return redirect(url_for("admin_login", token=app.config['ADMIN_LOGIN_TOKEN']))
 
 
 # ===================== 404 HANDLER ==============================
